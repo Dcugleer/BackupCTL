@@ -1,0 +1,17 @@
+# Exemplo de configuração cron para backupctl
+# Adicione estas linhas ao seu crontab com: crontab -e
+
+# Backup completo todo domingo às 2AM
+0 2 * * 0 /usr/local/bin/backupctl backup full --label "weekly-full" >> /var/log/backupctl.log 2>&1
+
+# Backup incremental a cada 6 horas
+0 */6 * * * /usr/local/bin/backupctl backup incremental --label "wal-archive" >> /var/log/backupctl.log 2>&1
+
+# Limpeza de backups antigos todo domingo às 3AM
+0 3 * * 0 /usr/local/bin/backupctl prune --policy "monthly-retain=3,weekly-retain=4,daily-retain=7" >> /var/log/backupctl.log 2>&1
+
+# Teste de conectividade diário às 4AM
+0 4 * * * /usr/local/bin/backupctl test >> /var/log/backupctl.log 2>&1
+
+# Health check a cada 30 minutos
+*/30 * * * * /usr/local/bin/backupctl/scripts/healthcheck.sh >> /var/log/backupctl.log 2>&1

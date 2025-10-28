@@ -1,0 +1,258 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(VIEWER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  backupOperations BackupOperation[]
+  restoreOperations RestoreOperation[]
+  @@map("users")
+}
+
+model Database {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  host        String
+  port        Int      @default(5432)
+  database    String
+  username    String
+  password    String
+  sslMode     String   @default("prefer")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  backupOperations BackupOperation[]
+  restoreOperations RestoreOperation[]
+  @@map("databases")
+}
+
+model BackupOperation {
+  id              String           @id @default(cuid())
+  databaseId      String
+  userId          String?
+  type            BackupType       @default(FULL)
+  status          BackupStatus     @default(PENDING)
+  startTime       DateTime         @default(now())
+  endTime         DateTime?
+  sizeBytes       Int?
+  compressedSize  Int?
+  checksum        String?
+  filePath        String?
+  s3Key           String?
+  encryptionKey   String?
+  compressionType CompressionType  @default(GZIP)
+  retentionPolicyId  String?
+  version         Int              @default(1)
+  parentBackupId  String?
+  isDeleted       Boolean          @default(false)
+  deletedAt       DateTime?
+  labels          String?          // JSON array of labels
+  metadata        String?          // JSON metadata
+  errorMessage    String?
+  
+  database        Database         @relation(fields: [databaseId], references: [id], onDelete: Cascade)
+  user            User?            @relation(fields: [userId], references: [id])
+  parentBackup    BackupOperation? @relation("BackupHierarchy", fields: [parentBackupId], references: [id])
+  childBackups    BackupOperation[] @relation("BackupHierarchy")
+  restoreOperations RestoreOperation[]
+  testResults     BackupTestResult[]
+  retentionPolicy RetentionPolicy? @relation(fields: [retentionPolicyId], references: [id])
+  
+  @@map("backup_operations")
+}
+
+model RestoreOperation {
+  id              String           @id @default(cuid())
+  databaseId      String
+  userId          String?
+  backupId        String
+  type            RestoreType      @default(FULL)
+  status          RestoreStatus    @default(PENDING)
+  startTime       DateTime         @default(now())
+  endTime         DateTime?
+  targetTables    String?          // JSON array of table names
+  targetSchemas   String?          // JSON array of schema names
+  pointInTime     DateTime?
+  isDryRun        Boolean          @default(false)
+  errorMessage    String?
+  
+  database        Database         @relation(fields: [databaseId], references: [id], onDelete: Cascade)
+  user            User?            @relation(fields: [userId], references: [id])
+  backup          BackupOperation  @relation(fields: [backupId], references: [id])
+  
+  @@map("restore_operations")
+}
+
+model BackupTestResult {
+  id                String   @id @default(cuid())
+  backupId          String
+  status            TestStatus @default(PENDING)
+  startTime         DateTime @default(now())
+  endTime           DateTime?
+  testType          TestType @default(INTEGRITY)
+  result            String?
+  errorMessage      String?
+  checksumVerified  Boolean  @default(false)
+  restoreTested     Boolean  @default(false)
+  
+  backup            BackupOperation @relation(fields: [backupId], references: [id], onDelete: Cascade)
+  
+  @@map("backup_test_results")
+}
+
+model RetentionPolicy {
+  id                String   @id @default(cuid())
+  name              String   @unique
+  keepDaily         Int      @default(7)
+  keepWeekly        Int      @default(4)
+  keepMonthly       Int      @default(12)
+  keepYearly        Int      @default(3)
+  maxSizeGB         Int?
+  maxTotalSizeGB    Int?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  backups           BackupOperation[]
+  
+  @@map("retention_policies")
+}
+
+model NotificationConfig {
+  id                String           @id @default(cuid())
+  name              String           @unique
+  type              NotificationType
+  config            String           // JSON config
+  events            String           // JSON array of events
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  
+  @@map("notification_configs")
+}
+
+model SystemMetrics {
+  id                String   @id @default(cuid())
+  metricType        String
+  value             Float
+  unit              String
+  timestamp         DateTime @default(now())
+  metadata          String?          // JSON metadata
+  
+  @@map("system_metrics")
+}
+
+model CloudStorage {
+  id                String           @id @default(cuid())
+  name              String           @unique
+  type              CloudType
+  config            String           // JSON config
+  isActive          Boolean          @default(true)
+  isDefault         Boolean          @default(false)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  
+  @@map("cloud_storages")
+}
+
+enum Role {
+  ADMIN
+  OPERATOR
+  VIEWER
+}
+
+enum BackupType {
+  FULL
+  INCREMENTAL
+  DIFFERENTIAL
+  WAL
+}
+
+enum BackupStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum CompressionType {
+  NONE
+  GZIP
+  ZSTD
+  LZ4
+}
+
+enum RetentionPolicyType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+  CUSTOM
+}
+
+enum RestoreType {
+  FULL
+  SELECTIVE
+  POINT_IN_TIME
+  TABLE_LEVEL
+  SCHEMA_LEVEL
+}
+
+enum RestoreStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum TestStatus {
+  PENDING
+  RUNNING
+  PASSED
+  FAILED
+  CANCELLED
+}
+
+enum TestType {
+  INTEGRITY
+  RESTORE
+  PERFORMANCE
+  CONSISTENCY
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  TELEGRAM
+  WEBHOOK
+  SLACK
+}
+
+enum CloudType {
+  AWS_S3
+  AZURE_BLOB
+  GCP_STORAGE
+  FTP
+  SFTP
+  LOCAL
+}

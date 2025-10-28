@@ -1,0 +1,92 @@
+# Sistema de Backup Automatizado PostgreSQL
+# Configuração principal
+
+# Configurações do PostgreSQL
+postgresql:
+  host: ${PG_HOST:localhost}
+  port: ${PG_PORT:5432}
+  user: ${PG_USER:postgres}
+  password: ${PG_PASSWORD}
+  database: ${PG_DATABASE:postgres}
+  connection_timeout: 30
+  backup_dir: /tmp/postgres_backups
+
+# Configurações AWS S3
+aws:
+  region: ${AWS_DEFAULT_REGION:us-east-1}
+  access_key_id: ${AWS_ACCESS_KEY_ID}
+  secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+  bucket: ${S3_BUCKET:postgres-backups}
+  prefix: ${S3_PREFIX:backups}
+  encryption: SSE-KMS  # SSE-S3, SSE-KMS, ou CLIENT
+  kms_key_id: ${KMS_KEY_ID}
+
+# Configurações de Backup
+backup:
+  # Retenção em dias
+  retention:
+    full_days: 30
+    incremental_days: 7
+    weekly_full: 4
+    monthly_full: 12
+  
+  # Configurações de compressão
+  compression:
+    enabled: true
+    level: 6
+    tool: gzip  # gzip, pigz
+  
+  # Configurações de WAL
+  wal:
+    archive_mode: true
+    archive_command: "backupctl backup incremental --label wal-archive"
+    wal_keep_segments: 64
+
+# Configurações de Agendamento
+schedule:
+  full_backup: "0 2 * * 0"  # Domingo 2AM
+  incremental_backup: "0 */6 * * *"  # A cada 6 horas
+  prune: "0 3 * * 0"  # Domingo 3AM
+
+# Configurações de Alertas
+alerts:
+  email:
+    enabled: false
+    smtp_server: ${SMTP_SERVER}
+    smtp_port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    from: ${SMTP_FROM}
+    to: ${ALERT_EMAIL_TO}
+  
+  webhook:
+    enabled: false
+    url: ${WEBHOOK_URL}
+    timeout: 30
+
+# Configurações de Logging
+logging:
+  level: INFO
+  format: json  # json ou text
+  file: /var/log/backupctl.log
+  max_size: 100MB
+  backup_count: 5
+  cloudwatch:
+    enabled: false
+    log_group: ${CW_LOG_GROUP:backupctl}
+    log_stream: ${CW_LOG_STREAM:main}
+
+# Configurações de Restore
+restore:
+  temp_dir: /tmp/postgres_restore
+  recovery_target_time: ""
+  recovery_target_xid: ""
+  recovery_target_lsn: ""
+  recovery_target_inclusive: true
+
+# Configurações de Teste
+testing:
+  enabled: true
+  schedule: "0 4 * * 6"  # Sábado 4AM
+  test_restore: true
+  cleanup_after_test: true

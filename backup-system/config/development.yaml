@@ -1,0 +1,76 @@
+# Configuração de desenvolvimento para backupctl
+# Copie para config.yaml e ajuste conforme necessário
+
+# Configurações do PostgreSQL
+postgresql:
+  host: ${PG_HOST:localhost}
+  port: ${PG_PORT:5432}
+  user: ${PG_USER:postgres}
+  password: ${PG_PASSWORD}
+  database: ${PG_DATABASE:postgres}
+  connection_timeout: 30
+  backup_dir: ./tmp/postgres_backups
+
+# Configurações AWS S3
+aws:
+  region: ${AWS_DEFAULT_REGION:us-east-1}
+  access_key_id: ${AWS_ACCESS_KEY_ID}
+  secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+  bucket: ${S3_BUCKET:backupctl-dev}
+  prefix: ${S3_PREFIX:dev-backups}
+  encryption: SSE-S3  # Simplificado para dev
+
+# Configurações de Backup
+backup:
+  retention:
+    full_days: 7        # Menor retenção para dev
+    incremental_days: 2
+    weekly_full: 2
+    monthly_full: 1
+  
+  compression:
+    enabled: true
+    level: 6
+    tool: gzip
+  
+  wal:
+    archive_mode: true
+    archive_command: "backupctl backup incremental --label dev-wal"
+    wal_keep_segments: 16
+
+# Configurações de Agendamento
+schedule:
+  full_backup: "0 2 * * *"        # Diário para dev
+  incremental_backup: "0 */2 * * *"  # A cada 2 horas
+  prune: "0 3 * * *"              # Diário
+
+# Configurações de Alertas
+alerts:
+  email:
+    enabled: false  # Desabilitado em dev
+  
+  webhook:
+    enabled: false
+
+# Configurações de Logging
+logging:
+  level: DEBUG  # Verbose em dev
+  format: text
+  file: ./logs/backupctl-dev.log
+  max_size: 50MB
+  backup_count: 3
+
+# Configurações de Restore
+restore:
+  temp_dir: ./tmp/postgres_restore
+  recovery_target_time: ""
+  recovery_target_xid: ""
+  recovery_target_lsn: ""
+  recovery_target_inclusive: true
+
+# Configurações de Teste
+testing:
+  enabled: true
+  schedule: "0 4 * * *"  # Diário
+  test_restore: true
+  cleanup_after_test: true
