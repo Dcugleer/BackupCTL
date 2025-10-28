@@ -471,8 +471,6 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 
 
 
-## 🙏 Agradecimentos
-
 - [PostgreSQL](https://www.postgresql.org/) - Banco de dados robusto
 - [Next.js](https://nextjs.org/) - Framework React full-stack
 - [Shadcn UI](https://ui.shadcn.com/) - Componentes UI modernos
@@ -482,8 +480,6 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 ---
 
 <div align="center">
-
-**⭐ Se este projeto ajudou você, deixe uma star!**
 
 📧 Contato do Autor
 
