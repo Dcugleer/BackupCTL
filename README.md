@@ -2,8 +2,8 @@
 
 <div align="center">
 
-![BackupCTL Logo](public/logo.png)
-![Screenshot da aplicação](assets/images/backupCTL1.png)
+![BackupCTL Logo](public/logo.jpg)
+![Screenshot da aplicação](assets/images/backupCTL1.jpg)
 
 **Sistema Enterprise de Backup e Recuperação para PostgreSQL**
 
