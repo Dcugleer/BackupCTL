@@ -4,7 +4,7 @@
 
 <!-- Logo centralizado -->
 <p align="center">
-  <img src="public/logo.jpg" alt="BackupCTL Logo" width="200"/>
+  <img src="public/logo.jpg" alt="logo.jpg" width="200"/>
 </p>
 
 <!-- Screenshot da aplicação centralizado -->
