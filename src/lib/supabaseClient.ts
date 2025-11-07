@@ -1,5 +1,17 @@
-import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://bnfdhszfrsxzdgfzjxvy.supabase.co';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuZmRoc3pmcnN4emRnZnpqeHZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1NDY0MTIsImV4cCI6MjA3ODEyMjQxMn0.ctGYMHh_wt46ymuZaJ8GG6rwFZUoNezXef4P8gsOvRg';
-export const supabase = createClient(supabaseUrl, supabaseKey);
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
+/**
+ * Inicializa e exporta o cliente Supabase para uso global no projeto.
+ * A chave de API deve ser definida via variável de ambiente.
+ * Nunca exponha chaves sensíveis no código-fonte.
+ */
+
+const supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://bnfdhszfrsxzdgfzjxvy.supabase.co';
+const supabaseKey: string | undefined = process.env.NEXT_PUBLIC_SUPABASE_KEY;
+
+if (!supabaseKey) {
+	throw new Error('Supabase API key não definida. Configure NEXT_PUBLIC_SUPABASE_KEY no .env.local');
+}
+
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
