@@ -14,24 +14,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "BackupCTL - Dashboard",
+  description: "Sistema empresarial de backup PostgreSQL",
+  keywords: ["BackupCTL", "Backup", "PostgreSQL", "Dashboard", "Next.js", "TypeScript", "Tailwind CSS"],
+  authors: [{ name: "Dcugleer" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/logo.png",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "BackupCTL",
+    description: "Sistema empresarial de backup PostgreSQL",
+    url: "https://bnfdhszfrsxzdgfzjxvy.supabase.co",
+    siteName: "BackupCTL",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "BackupCTL",
+    description: "Sistema empresarial de backup PostgreSQL",
   },
 };
 
